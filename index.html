@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weeraphat | Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom Styles and Animations */
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;700&family=Poppins:wght@400;700;900&display=swap');
+
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #f8fafc; /* Slate 50 */
+            overflow-x: hidden;
+            margin: 0;
+            height: 100vh;
+        }
+
+        h1, h2, .name-title {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* --- Intro Screen Styles --- */
+        #intro-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.8s ease;
+        }
+
+        #intro-screen.hidden-slide {
+            transform: translateY(-100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .name-title {
+            font-size: 6rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            background: linear-gradient(to right, #38bdf8, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: pointer;
+            transition: transform 0.3s ease, text-shadow 0.3s ease;
+            text-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+            animation: pulse-glow 2s infinite alternate;
+        }
+
+        @media (max-width: 768px) {
+            .name-title { font-size: 3.5rem; }
+        }
+
+        .name-title:hover {
+            transform: scale(1.05);
+            text-shadow: 0 0 40px rgba(56, 189, 248, 0.6);
+        }
+
+        .click-hint {
+            margin-top: 2rem;
+            font-size: 1.2rem;
+            color: #94a3b8;
+            opacity: 0.7;
+            animation: bounce 2s infinite;
+            pointer-events: none;
+        }
+
+        /* --- Portfolio Main Content Styles --- */
+        #portfolio-content {
+            padding: 4rem 2rem;
+            min-height: 100vh;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease 0.4s, transform 0.8s ease 0.4s;
+            display: none; /* Initially hidden */
+        }
+
+        #portfolio-content.visible {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Graphic Background Elements */
+        .bg-shape {
+            position: absolute;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.4;
+            animation: float 10s infinite alternate;
+        }
+        .shape-1 { top: -10%; left: -10%; width: 400px; height: 400px; background: #38bdf8; border-radius: 50%; }
+        .shape-2 { bottom: -10%; right: -10%; width: 500px; height: 500px; background: #c084fc; border-radius: 50%; animation-delay: -5s; }
+
+        /* Masonry-style Grid for Cards */
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Card Styles (Neumorphism / Glassmorphism mix) */
+        .project-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            overflow: hidden;
+            position: relative;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            group: hover;
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(56, 189, 248, 0.2);
+            z-index: 10;
+        }
+
+        /* Number/Icon graphic for each project */
+        .card-graphic {
+            height: 160px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 4rem;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 900;
+            color: rgba(255,255,255,0.05);
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card:hover .card-graphic {
+            color: rgba(255,255,255,0.2);
+        }
+
+        /* Abstract shapes inside graphic area */
+        .card-graphic::after {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            border-radius: 50%;
+            bottom: -50px;
+            right: -20px;
+            opacity: 0.5;
+            transition: transform 0.5s ease;
+        }
+
+        .project-card:hover .card-graphic::after {
+            transform: scale(1.5);
+        }
+
+        .card-graphic i {
+            font-size: 5rem; /* Larger icons */
+            background: linear-gradient(to bottom right, #ffffff, rgba(255,255,255,0.3));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            z-index: 1; /* Keep icon above the abstract shape */
+            transition: transform 0.3s ease;
+        }
+
+        .project-card:hover .card-graphic i {
+            transform: scale(1.1);
+        }
+
+        .card-content {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #e2e8f0;
+            transition: color 0.3s ease;
+        }
+
+        .project-card:hover .card-title {
+            color: #38bdf8;
+        }
+
+        .card-desc {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .card-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #f8fafc;
+            background: linear-gradient(to right, #3b82f6, #8b5cf6);
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px; /* full rounded */
+            text-decoration: none;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            align-self: flex-start;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .card-link::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(to right, #8b5cf6, #ec4899);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card-link:hover::before {
+            opacity: 1;
+        }
+        
+        .card-link:hover {
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+            padding-right: 2rem; /* Expand slightly on hover */
+        }
+
+        .card-link i {
+            transition: transform 0.3s ease;
+        }
+        
+        .card-link:hover i {
+            transform: translateX(5px);
+        }
+
+        /* Animations */
+        @keyframes pulse-glow {
+            0% { text-shadow: 0 0 20px rgba(56, 189, 248, 0.2); }
+            100% { text-shadow: 0 0 40px rgba(192, 132, 252, 0.6); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(10px); }
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(30px, -30px); }
+        }
+
+        /* Header in Portfolio */
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(to right, #e2e8f0, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .instruction-banner {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid #f43f5e;
+            padding: 1rem;
+            margin: 2rem auto;
+            max-width: 800px;
+            border-radius: 0 0.5rem 0.5rem 0;
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Intro Screen: Name in English -->
+    <div id="intro-screen">
+        <h1 class="name-title" onclick="enterPortfolio()">Weeraphat</h1>
+        <p class="click-hint"><i class="fas fa-hand-pointer mr-2"></i> Click name to enter portfolio</p>
+    </div>
+
+    <!-- Background Shapes -->
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+
+    <!-- Main Portfolio Content -->
+    <div id="portfolio-content">
+        
+        <div class="section-header">
+            <h2>My Digital Creations</h2>
+            <p>A collection of websites designed and developed, focusing on graphic elements and user experience.</p>
+        </div>
+
+        <div class="instruction-banner">
+            <p class="text-sm text-slate-300">
+                <i class="fas fa-info-circle text-rose-500 mr-2"></i>
+                <strong>Notice for evaluators:</strong> Please review the projects below. When finished, kindly share the evaluation link in the Line group as instructed.
+            </p>
+        </div>
+
+        <div class="project-grid">
+
+            <!-- Project 1 -->
+            <article class="project-card">
+                <div class="card-graphic" style="background: linear-gradient(135deg, rgba(56,189,248,0.1), transparent);">
+                    <i class="fas fa-id-card"></i>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">Personal Google Site 1</h3>
+                    <p class="card-desc">เว็บไซต์ส่วนตัวหน้าแรก พัฒนาผ่าน Google Sites รวบรวมข้อมูลพื้นฐานและผลงานเบื้องต้น</p>
+                    <a href="https://sites.google.com/northbkk.ac.th/weeraphat/home" target="_blank" class="card-link">
+                        Visit Site <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+
+            <!-- Project 2 -->
+            <article class="project-card">
+                <div class="card-graphic" style="background: linear-gradient(135deg, rgba(167,139,250,0.1), transparent);">
+                    <i class="fas fa-user-astronaut"></i>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">Personal Google Site 2</h3>
+                    <p class="card-desc">เว็บไซต์ส่วนตัวอีกรูปแบบ พัฒนาผ่าน Google Sites นำเสนอข้อมูลที่แตกต่าง</p>
+                    <a href="https://sites.google.com/northbkk.ac.th/weeraphatsi/%E0%B8%AB%E0%B8%99%E0%B8%B2%E0%B9%81%E0%B8%A3%E0%B8%81" target="_blank" class="card-link">
+                        Visit Site <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+
+            <!-- Project 3 -->
+            <article class="project-card">
+                <div class="card-graphic" style="background: linear-gradient(135deg, rgba(52,211,153,0.1), transparent);">
+                    <i class="fas fa-weight-scale"></i>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">BMI Calculator</h3>
+                    <p class="card-desc">แอปพลิเคชันคำนวณค่าดัชนีมวลกาย (BMI) เน้นการใช้งานที่ง่ายและแสดงผลรวดเร็ว</p>
+                    <a href="https://681202330-code.github.io/BMI/" target="_blank" class="card-link">
+                        Visit Site <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+
+            <!-- Project 4 -->
+            <article class="project-card">
+                <div class="card-graphic" style="background: linear-gradient(135deg, rgba(251,146,60,0.1), transparent);">
+                    <i class="fas fa-door-open"></i>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">Open House Info</h3>
+                    <p class="card-desc">หน้าเว็บไซต์ประชาสัมพันธ์กิจกรรม Open House นำเสนอข้อมูลน่าสนใจและดึงดูดผู้เข้าร่วม</p>
+                    <a href="https://681202330-code.github.io/Open-House/" target="_blank" class="card-link">
+                        Visit Site <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+
+            <!-- Project 5 -->
+            <article class="project-card">
+                <div class="card-graphic" style="background: linear-gradient(135deg, rgba(244,63,94,0.1), transparent);">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">NxtBite Project</h3>
+                    <p class="card-desc">โปรเจกต์เว็บไซต์ NxtBite นำเสนอดีไซน์ทันสมัยและเน้นประสบการณ์ผู้ใช้ (UX/UI)</p>
+                    <a href="https://681202330-code.github.io/nxtbite/" target="_blank" class="card-link">
+                        Visit Site <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+
+            <!-- Project 6 -->
+            <article class="project-card">
+                <div class="card-graphic" style="background: linear-gradient(135deg, rgba(96,165,250,0.1), transparent);">
+                    <i class="fas fa-images"></i>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">Image Gallery</h3>
+                    <p class="card-desc">เว็บไซต์รวบรวมและแสดงผลรูปภาพ จัดวางเลย์เอาต์สวยงามให้ความสำคัญกับ Graphic</p>
+                    <a href="https://681202330-code.github.io/image/" target="_blank" class="card-link">
+                        Visit Site <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+
+        </div>
+    </div>
+
+    <script>
+        function enterPortfolio() {
+            const intro = document.getElementById('intro-screen');
+            const content = document.getElementById('portfolio-content');
+            
+            // Slide up the intro screen
+            intro.classList.add('hidden-slide');
+            
+            // Show the portfolio content
+            content.style.display = 'block';
+            
+            // Small delay to allow display:block to apply before animating opacity/transform
+            setTimeout(() => {
+                content.classList.add('visible');
+                // Scroll to top just in case
+                window.scrollTo(0, 0);
+            }, 50);
+            
+            // Optionally remove intro from DOM after animation completes to free resources
+            setTimeout(() => {
+                intro.style.display = 'none';
+            }, 800);
+        }
+    </script>
+</body>
+</html>
